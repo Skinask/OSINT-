@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 
-import requests
 import urllib.parse
-from bs4 import BeautifulSoup
-import sys
 
 BANNER = r"""
 ========================================
-   SIMPLE GOOGLE DORK OSINT TOOL
+   SIMPLE GOOGLE DORK GENERATOR
 ----------------------------------------
    Coded by : Rencezy
    Assisted by : ChatGPT
@@ -16,65 +13,47 @@ BANNER = r"""
 
 print(BANNER)
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0"
-}
 
+def generate_dorks(name):
+    parts = name.split()
 
-def clean_ddg_url(url):
-    """
-    Extract real URL from DuckDuckGo redirect links
-    """
-    if "duckduckgo.com/l/?" in url:
-        parsed = urllib.parse.urlparse(url)
-        params = urllib.parse.parse_qs(parsed.query)
-        if "uddg" in params:
-            return urllib.parse.unquote(params["uddg"][0])
-    return url
+    dorks = [
+        f'site:facebook.com {name}',
+        f'site:facebook.com "{name}"',
+        f'site:facebook.com "{name}" posts',
+        f'site:facebook.com "{name}" comments',
+        f'site:facebook.com "{name}" photos',
+        f'site:facebook.com "{name}" videos',
+        f'site:facebook.com "{name}" profile',
+        f'site:facebook.com "{name}" groups',
+        f'site:facebook.com "{name}" public',
+        f'site:facebook.com "{name}" people',
+    ]
 
+    for p in parts:
+        dorks.append(f'site:facebook.com {p}')
+        dorks.append(f'site:facebook.com "{p}"")
 
-def search(username):
-    query = f'site:facebook.com "{username}"'
-    encoded = urllib.parse.quote(query)
-    search_url = f"https://duckduckgo.com/html/?q={encoded}"
-
-    response = requests.get(search_url, headers=HEADERS)
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    results = set()
-
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "facebook.com" in href:
-            clean_url = clean_ddg_url(href)
-            if clean_url.startswith("https://www.facebook.com"):
-                results.add(clean_url)
-
-    return results
+    return list(dict.fromkeys(dorks))[:15]
 
 
 def main():
-    try:
-        username = input("Enter Username: ").strip()
-    except KeyboardInterrupt:
-        print("\nExit.")
-        sys.exit(0)
+    name = input("Enter Username or Name: ").strip()
 
-    if not username:
-        print("Username cannot be empty.")
-        sys.exit(1)
-
-    print("\nSearching...\n")
-    results = search(username)
-
-    if not results:
-        print("No results found.")
+    if not name:
+        print("Name cannot be empty.")
         return
 
-    for link in sorted(results):
-        print(link)
+    print("\nGoogle Dork URLs (Copy & Paste):\n")
 
-    print(f"\nTotal results: {len(results)}")
+    dorks = generate_dorks(name)
+
+    for dork in dorks:
+        encoded = urllib.parse.quote(dork)
+        url = f"https://www.google.com/search?q={encoded}"
+        print(url)
+
+    print(f"\nTotal Dorks Generated: {len(dorks)}")
 
 
 if __name__ == "__main__":
