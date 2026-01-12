@@ -32,8 +32,9 @@ def generate_dorks(name):
 
     for p in parts:
         dorks.append(f'site:facebook.com {p}')
-        dorks.append(f'site:facebook.com "{p}"")
+        dorks.append(f'site:facebook.com "{p}"')
 
+    # Remove duplicates and limit to 15
     return list(dict.fromkeys(dorks))[:15]
 
 
